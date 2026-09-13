@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  ultron:
+    build: .
+    container_name: ultron
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5000
+    volumes:
+      - ultron-data:/app/data
+      - ultron-logs:/app/logs
+      - ultron-uploads:/app/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  ultron-data:
+  ultron-logs:
+  ultron-uploads:

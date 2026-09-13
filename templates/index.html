@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ultron AI Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=21" />
+</head>
+<body>
+  <svg style="display:none">
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M3 11l18-7-7 18-2.5-7.5L3 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15V7a2 2 0 012-2h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11A8 8 0 105 12M20 11v-5M20 11h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+
+    <symbol id="i-speak" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 010 7M18.5 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5L3.5 3.5M20.5 20.5L19 19M5 19L3.5 20.5M20.5 3.5L19 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-memory" viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 6v12M16 6v12M4 10h2M4 14h2M18 10h2M18 14h2" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-kb" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.6 1.6 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.6 1.6 0 00-2.7 1.1V21a2 2 0 11-4 0v-.1A1.6 1.6 0 006.6 19.4l-.1.1a2 2 0 11-2.8-2.8l.1-.1A1.6 1.6 0 003.7 14a1.6 1.6 0 00-1.8-.3h-.1a2 2 0 110-4V11a1.6 1.6 0 001.8-.3 1.6 1.6 0 00.3-1.8v-.1a2 2 0 112.8-2.8l.1.1a1.6 1.6 0 002.7-1.1V4a2 2 0 114 0v.1a1.6 1.6 0 002.7 1.1l.1-.1a2 2 0 112.8 2.8l-.1.1a1.6 1.6 0 00-.3 1.8v.1a1.6 1.6 0 001.8.3h.1a2 2 0 110 4 1.6 1.6 0 00-1.8.3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-collapse" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-9-9M21 3l-9 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 10v1a7 7 0 0014 0v-1M12 18v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-mic-off" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 10v1a7 7 0 0010.5 6M19 10v1a7 7 0 01-.9 3.4M12 18v4M5 5l14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+
+    <symbol id="i-voice" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 4v3M12 17v3M4 12h3M17 12h3M6.34 6.34l2.12 2.12M15.54 15.54l2.12 2.12M6.34 17.66l2.12-2.12M15.54 8.46l2.12-2.12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-export" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-import" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M12 3v12M7 10l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-rewrite" viewBox="0 0 24 24"><path d="M17 3a2.8 2.8 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <div class="app">
+    <!-- ====================== SIDEBAR ====================== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg viewBox="0 0 40 40" class="ultron-avatar" aria-hidden="true" focusable="false">
+              <defs>
+                <radialGradient id="orb-core" cx=".38" cy=".3" r="1">
+                  <stop offset="0" stop-color="#ff8a3c"/>
+                  <stop offset=".4" stop-color="#ff2d2d"/>
+                  <stop offset=".85" stop-color="#7a0000"/>
+                  <stop offset="1" stop-color="#3d0000"/>
+                </radialGradient>
+                <radialGradient id="orb-halo" cx=".5" cy=".5" r=".5">
+                  <stop offset="0" stop-color="#ff2d2d" stop-opacity=".55"/>
+                  <stop offset=".6" stop-color="#ff2d2d" stop-opacity=".15"/>
+                  <stop offset="1" stop-color="#ff2d2d" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+              <circle class="ua-halo" cx="20" cy="20" r="18" fill="url(#orb-halo)"/>
+              <circle class="ua-ring" cx="20" cy="20" r="15" fill="none" stroke="#ff2d2d" stroke-width="1.6" stroke-dasharray="3 5" stroke-linecap="round" opacity=".9"/>
+              <circle class="ua-orb" cx="20" cy="20" r="8.5" fill="url(#orb-core)"/>
+              <ellipse cx="16.5" cy="16.5" rx="3.4" ry="2.2" fill="#fff" opacity=".55" transform="rotate(-30 16.5 16.5)"/>
+            </svg>
+          </div>
+          <span class="brand-name">Ultron</span>
+          <button class="icon-btn brand-collapse" id="collapseBtn" title="Collapse sidebar" aria-label="Collapse sidebar">
+            <svg><use href="#i-collapse"/></svg>
+          </button>
+        </div>
+        <button class="btn-new" id="newChatBtn">
+          <svg><use href="#i-plus"/></svg><span>New chat</span>
+        </button>
+      </div>
+
+      <div class="search-wrap">
+        <svg class="search-icon"><use href="#i-search"/></svg>
+        <input id="searchInput" type="search" placeholder="Search chats..." autocomplete="off" />
+      </div>
+
+      <nav class="chat-list" id="chatList"></nav>
+
+      <div class="sidebar-footer">
+        <button class="side-item" id="voiceModeBtn"><svg><use href="#i-voice"/></svg><span>Voice Mode</span></button>
+        <button class="side-item" id="memoryBtn"><svg><use href="#i-memory"/></svg><span>Memory</span></button>
+        <button class="side-item" id="kbBtn"><svg><use href="#i-kb"/></svg><span>Knowledge Base</span></button>
+        <button class="side-item" id="settingsBtn"><svg><use href="#i-settings"/></svg><span>Settings</span></button>
+        <button class="side-item danger" id="deleteAllChatsBtn" title="Delete all chats"><svg><use href="#i-trash"/></svg><span>Delete all chats</span></button>
+      </div>
+    </aside>
+    <div class="sidebar-scrim" id="sidebarScrim"></div>
+
+    <!-- floating button shown only when the sidebar is collapsed -->
+    <button class="sidebar-float" id="expandBtn" title="Show sidebar" aria-label="Show sidebar">
+      <svg><use href="#i-expand"/></svg>
+    </button>
+
+    <!-- ====================== MAIN ====================== -->
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="icon-btn menu-btn" id="menuBtn" aria-label="Menu"><svg><use href="#i-menu"/></svg></button>
+          <h2 class="chat-title" id="chatTitle">New Chat</h2>
+        </div>
+        <div class="topbar-right">
+          <button class="icon-btn" id="themeToggle" title="Toggle theme" aria-label="Toggle theme">
+            <svg id="themeIcon"><use href="#i-sun"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <section class="messages" id="messages">
+        <!-- empty state -->
+        <div class="empty-state" id="emptyState">
+          <div class="orb" aria-hidden="true">
+            <div class="orb-core">✦</div>
+          </div>
+          <h1>I am Ultron.</h1>
+          <p>Ask anything. Upload files for analysis. I will remember.</p>
+          <div class="suggestions">
+            <button class="chip" data-prompt="Explain how RAG (retrieval-augmented generation) works with a simple analogy">What is RAG?</button>
+            <button class="chip" data-prompt="Write a short Python function that computes the Fibonacci sequence">Python code</button>
+            <button class="chip" data-prompt="Summarize the key ideas of linear regression in plain English">ML explained</button>
+            <button class="chip" data-prompt="Translate 'Good morning, how are you?' into three languages">Translate</button>
+            <button class="chip" data-prompt="The capital of France is Paris">Remember a fact</button>
+          </div>
+        </div>
+
+        <div class="conversation" id="conversation"></div>
+      </section>
+
+      <!-- composer -->
+      <div class="composer-area">
+        <div class="attachments" id="attachmentChips"></div>
+        <div class="composer-top">
+<div class="model-pill" title="AI provider ’ Auto falls back automatically">
+            <span class="model-dot" id="modelDot"></span>
+            <select id="providerSelect" aria-label="AI provider">
+              <option value="auto">Auto</option>
+              <option value="cyfuture">Cyfuture</option>
+              <option value="groq">Groq</option>
+              <option value="gemini">Gemini</option>
+            </select>
+          </div>
+        </div>
+        <div class="composer" id="composer">
+          <button class="icon-btn attach-btn" id="attachBtn" title="Attach files" aria-label="Attach files">
+            <svg><use href="#i-clip"/></svg>
+          </button>
+          <button class="icon-btn attach-btn" id="voiceBtn" title="Voice chat (speak &amp; hear replies)" aria-label="Voice chat">
+            <svg><use href="#i-mic"/></svg>
+          </button>
+          <textarea id="input" rows="1" placeholder="Message Ultron..." autocomplete="off"></textarea>
+          <button class="send-btn hidden" id="stopBtn" title="Stop generating" aria-label="Stop"><svg><use href="#i-stop"/></svg></button>
+          <button class="send-btn" id="sendBtn" title="Send" aria-label="Send"><svg><use href="#i-send"/></svg></button>
+        </div>
+        <p class="hint">Ultron evolves. Verify critical information.</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- ====================== VOICE OVERLAY ====================== -->
+  <div class="voice-overlay hidden" id="voiceOverlay">
+    <div class="voice-card">
+      <div class="voice-mic" id="voiceMicBtn">
+        <svg><use href="#i-mic"/></svg>
+        <span class="voice-ring r1"></span>
+        <span class="voice-ring r2"></span>
+      </div>
+      <div class="voice-status" id="voiceStatus">Tap the mic and speak…</div>
+      <div class="voice-live-text" id="voiceLiveText"></div>
+      <div class="voice-sub" id="voiceSub">&nbsp;</div>
+      <button class="btn-ghost" id="voiceCloseBtn"><svg><use href="#i-close"/></svg> Cancel</button>
+    </div>
+  </div>
+
+  <!-- hidden file input -->
+  <input type="file" id="fileInput" multiple
+         accept=".png,.jpg,.jpeg,.webp,.gif,.bmp,.pdf,.docx,.txt,.md,.markdown,.csv" hidden />
+
+  <!-- upload progress overlay -->
+  <div class="upload-progress-overlay hidden" id="uploadProgressOverlay">
+    <div class="upload-progress-card">
+      <div class="upload-progress-title">Uploading files…</div>
+      <div class="upload-progress-list" id="uploadProgressList"></div>
+    </div>
+  </div>
+
+  <!-- ====================== SETTINGS MODAL ====================== -->
+  <div class="modal-backdrop hidden" id="settingsModal">
+    <div class="modal glass">
+      <div class="modal-head">
+        <h3>Settings</h3>
+        <button class="icon-btn" data-close><svg><use href="#i-close"/></svg></button>
+      </div>
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="model">Model</button>
+        <button class="tab" data-tab="gen">Generation</button>
+        <button class="tab" data-tab="features">Features</button>
+        <button class="tab" data-tab="data">Data</button>
+      </div>
+      <div class="modal-body">
+<!-- Model -->
+        <section class="tab-panel active" data-panel="model">
+          <label>Default provider
+            <select id="setProvider">
+              <option value="auto">Auto (fallback order)</option>
+              <option value="cyfuture">Cyfuture</option>
+              <option value="groq">Groq</option>
+              <option value="gemini">Gemini</option>
+            </select>
+          </label>
+          <label>Cyfuture model <input type="text" id="setCyfutureModel" /></label>
+          <label>Cyfuture vision model <input type="text" id="setCyfutureVisionModel" /></label>
+          <label>Cyfuture base URL <input type="text" id="setCyfutureBaseUrl" /></label>
+          <label>Groq model <input type="text" id="setGroqModel" /></label>
+          <label>Groq vision model <input type="text" id="setGroqVisionModel" /></label>
+          <label>Gemini model <input type="text" id="setGeminiModel" /></label>
+          <label>Gemini vision model <input type="text" id="setGeminiVisionModel" /></label>
+        </section>
+        <!-- Generation -->
+        <section class="tab-panel" data-panel="gen">
+          <label class="range-row">
+            <span>Temperature <b id="tempValue">0.7</b></span>
+            <input type="range" id="setTemperature" min="0" max="2" step="0.1" />
+          </label>
+          <label>Max tokens <input type="number" id="setMaxTokens" min="64" max="8192" step="64" /></label>
+        </section>
+        <!-- Features -->
+        <section class="tab-panel" data-panel="features">
+          <label class="toggle-row"><span>Dark theme</span>
+            <input type="checkbox" id="setThemeDark" class="switch" /></label>
+          <label class="toggle-row"><span>RAG (retrieve from uploaded docs)</span>
+            <input type="checkbox" id="setRag" class="switch" /></label>
+          <label class="toggle-row"><span>Long-term memory</span>
+            <input type="checkbox" id="setMemory" class="switch" /></label>
+          <label class="toggle-row"><span>Auto-learn facts from conversation</span>
+            <input type="checkbox" id="setMemoryAuto" class="switch" /></label>
+          <label class="toggle-row"><span>Tools (time, weather, web search &amp; scan)</span>
+            <input type="checkbox" id="setTools" class="switch" /></label>
+          <label class="toggle-row"><span>Provider fallback (switch provider on failure)</span>
+            <input type="checkbox" id="setProviderFallback" class="switch" /></label>
+          <label>Default city for weather <em>(blank = auto-detect from IP)</em>
+            <input type="text" id="setDefaultCity" placeholder="e.g. London" />
+          </label>
+          <label>Web results per search <em>(pages scanned &amp; sent to the model)</em>
+            <input type="number" id="setWebResults" min="1" max="6" />
+          </label>
+          <label>Knowledge base namespace <em>(blank = disabled; e.g. &quot;healthcare&quot;)</em>
+            <input type="text" id="setKbNamespace" placeholder="healthcare" />
+          </label>
+          <label>Speak voice <em>(Ultron default: deepest male voice, slow &amp; deliberate ’ pick a different one here)</em>
+            <select id="setVoice"><option value="">Auto (Ultron ’ deep, deliberate)</option></select>
+          </label>
+        </section>
+        <!-- Data -->
+        <section class="data-panel" data-panel="data">
+          <p class="panel-note">Back up or restore all your chats and memory as a JSON file.</p>
+          <div class="data-actions">
+            <button class="btn-ghost" id="exportBtn"><svg><use href="#i-export"/></svg> Export chats</button>
+            <button class="btn-ghost" id="importBtn"><svg><use href="#i-import"/></svg> Import chats</button>
+          </div>
+          <input type="file" id="importFile" accept=".json" hidden />
+        </section>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-ghost" data-close>Cancel</button>
+        <button class="btn-primary" id="saveSettingsBtn">Save settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== MEMORY MODAL ====================== -->
+  <div class="modal-backdrop hidden" id="memoryModal">
+    <div class="modal glass">
+      <div class="modal-head">
+        <h3>Memory</h3>
+        <button class="icon-btn" data-close><svg><use href="#i-close"/></svg></button>
+      </div>
+      <div class="memory-add">
+        <input id="memoryInput" placeholder="Add a fact Ultron should remember..." />
+        <button class="btn-primary" id="memoryAddBtn"><svg><use href="#i-plus"/></svg></button>
+      </div>
+      <div class="modal-body memory-list" id="memoryList"></div>
+      <div class="modal-foot">
+        <p class="muted">Ultron injects these facts into every conversation.</p>
+        <button class="btn-ghost" data-close>Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== KNOWLEDGE BASE MODAL ====================== -->
+  <div class="modal-backdrop hidden" id="kbModal">
+    <div class="modal glass">
+      <div class="modal-head">
+        <h3>Knowledge Base</h3>
+        <button class="icon-btn" data-close><svg><use href="#i-close"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <label>Namespace <em>(must match Settings &gt; Features &gt; knowledge base namespace)</em>
+          <input type="text" id="kbNamespace" placeholder="healthcare" />
+        </label>
+        <p class="muted" id="kbStatus">Loading...</p>
+        <div class="kb-drop" id="kbDrop">
+          <svg><use href="#i-export"/></svg>
+          <p>Drop PDF / DOCX / TXT / MD / CSV files here, or click to choose</p>
+          <input type="file" id="kbFileInput" multiple accept=".pdf,.docx,.txt,.md,.markdown,.csv" hidden />
+        </div>
+        <ul class="kb-results" id="kbResults"></ul>
+        <div class="kb-files-head">Files in this namespace</div>
+        <ul class="kb-file-list" id="kbFileList"></ul>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-ghost" id="kbClearBtn">Clear namespace</button>
+        <button class="btn-primary" id="kbIngestBtn">Ingest files</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== VOICE MODE (Full-screen) ====================== -->
+  <div class="voice-mode hidden" id="voiceMode">
+    <div class="voice-mode-bg" aria-hidden="true">
+      <div class="vm-ring r1"></div>
+      <div class="vm-ring r2"></div>
+      <div class="vm-ring r3"></div>
+    </div>
+
+    <div class="voice-mode-content">
+      <header class="vm-header">
+        <h2>Voice Mode</h2>
+        <button class="icon-btn" id="vmCloseBtn" aria-label="Exit voice mode"><svg><use href="#i-close"/></svg></button>
+      </header>
+
+      <div class="vm-center">
+        <div class="vm-orb" id="vmOrb" role="button" aria-label="Tap to interrupt">
+          <svg class="vm-orb-svg" viewBox="0 0 400 400" aria-hidden="true">
+            <defs>
+              <radialGradient id="vmHaloGrad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.15"/>
+                <stop offset="50%" stop-color="#ffffff" stop-opacity="0.04"/>
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="vmCoreGrad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+                <stop offset="50%" stop-color="#aaaaaa" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#555555" stop-opacity="0.1"/>
+              </radialGradient>
+              <filter id="vmSoftGlow">
+                <feGaussianBlur stdDeviation="2" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <filter id="vmCoreGlow">
+                <feGaussianBlur stdDeviation="6" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+
+            <!-- Ring 1 (outermost): thin segmented arcs -->
+            <circle class="vm-hud-ring vm-r1" cx="200" cy="200" r="190"
+              fill="none" stroke="#ffffff" stroke-width="0.8" stroke-dasharray="14 6 4 6" opacity="0.35"/>
+
+            <!-- Ring 2: dotted -->
+            <circle class="vm-hud-ring vm-r2" cx="200" cy="200" r="175"
+              fill="none" stroke="#ffffff" stroke-width="1" stroke-dasharray="1.5 8" opacity="0.4"/>
+
+            <!-- Ring 3: thick arcs with large gaps -->
+            <circle class="vm-hud-ring vm-r3" cx="200" cy="200" r="158"
+              fill="none" stroke="#ffffff" stroke-width="2" stroke-dasharray="50 20 30 20" opacity="0.5" filter="url(#vmSoftGlow)"/>
+
+            <!-- Ring 4: fine dashes -->
+            <circle class="vm-hud-ring vm-r4" cx="200" cy="200" r="142"
+              fill="none" stroke="#ffffff" stroke-width="0.7" stroke-dasharray="5 12" opacity="0.3"/>
+
+            <!-- Ring 5: tick marks -->
+            <circle class="vm-hud-ring vm-r5" cx="200" cy="200" r="126"
+              fill="none" stroke="#ffffff" stroke-width="1.2" stroke-dasharray="2 14" opacity="0.45"/>
+
+            <!-- Ring 6: solid thin -->
+            <circle class="vm-hud-ring vm-r6" cx="200" cy="200" r="108"
+              fill="none" stroke="#ffffff" stroke-width="1" opacity="0.3"/>
+
+            <!-- Ring 7: inner glow ring -->
+            <circle class="vm-hud-ring vm-r7" cx="200" cy="200" r="92"
+              fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.45" filter="url(#vmSoftGlow)"/>
+
+            <!-- Halo -->
+            <circle class="vm-halo" cx="200" cy="200" r="75" fill="url(#vmHaloGrad)"/>
+
+            <!-- Core rings -->
+            <circle cx="200" cy="200" r="40" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.15"/>
+            <circle cx="200" cy="200" r="30" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.2"/>
+            <circle cx="200" cy="200" r="18" fill="url(#vmCoreGrad)" filter="url(#vmCoreGlow)"/>
+            <circle cx="200" cy="200" r="8" fill="#ffffff" opacity="0.5"/>
+
+            <!-- Audio wave bars (generated by JS) -->
+            <g id="vmWaveBars" transform="translate(200,200)"></g>
+          </svg>
+        </div>
+
+        <div class="vm-status" id="vmStatus">Ready</div>
+        <div class="vm-sub" id="vmSub">Tap the orb to start talking</div>
+      </div>
+
+      <div class="vm-transcript" id="vmTranscript" aria-live="polite"></div>
+
+      <footer class="vm-footer">
+        <button class="btn-ghost vm-btn" id="vmInterruptBtn"><svg><use href="#i-stop"/></svg> Interrupt</button>
+        <button class="btn-ghost vm-btn" id="vmMuteBtn"><svg><use href="#i-mic-off"/></svg> Mute</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- confirm modal -->
+  <div class="modal-backdrop hidden" id="confirmModal">
+    <div class="modal glass modal-sm">
+      <div class="modal-head"><h3 id="confirmTitle">Delete chat?</h3><button class="icon-btn" data-close><svg><use href="#i-close"/></svg></button></div>
+      <div class="modal-body"><p id="confirmText">This cannot be undone.</p></div>
+      <div class="modal-foot">
+        <button class="btn-ghost" data-close>Cancel</button>
+        <button class="btn-danger" id="confirmOk">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}?v=39"></script>
+</body>
+</html>

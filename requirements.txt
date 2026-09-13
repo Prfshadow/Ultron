@@ -1,0 +1,29 @@
+# Ultron — minimal dependencies
+flask>=3.0
+requests>=2.31
+python-dotenv>=1.0
+waitress>=3.0
+
+# AI providers (Groq = fast chat, Gemini = fallback + vision, Cyfuture = chat + vision)
+groq>=0.9
+google-generativeai>=0.7
+
+# RAG: embeddings (LangChain) + vector DB + text deps
+langchain-core>=0.2.0
+langchain-huggingface>=0.1.0
+qdrant-client>=1.12
+numpy>=1.26
+scikit-learn>=1.3
+
+# Tools
+ddgs>=9.0
+tzdata>=2024.1
+huggingface_hub>=0.24.0
+
+# Documents & images
+PyMuPDF>=1.24
+pypdf>=4.0
+python-docx>=1.1
+Pillow>=10.0
+edge-tts>=7.0
+pytesseract>=0.3.10  # OCR for scanned PDFs (needs Tesseract binary installed)

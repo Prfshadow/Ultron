@@ -1,0 +1,9 @@
+# Ultron
+.env
+venv/
+__pycache__/
+*.pyc
+logs/
+database/ultron.db*
+uploads/*
+!uploads/.gitkeep
