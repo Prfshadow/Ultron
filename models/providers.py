@@ -156,29 +156,75 @@ class BaseProvider:
         raise NotImplementedError
 
 
-class GroqProvider(BaseProvider):
-    key = "groq"
-    label = "Groq"
-    default_model = "openai/gpt-oss-120b"
-    vision_model = "openai/gpt-oss-120b"
-    supports_vision = False
+class _OpenAICompatibleProvider(BaseProvider):
+    """Shared streaming client for OpenAI-compatible chat APIs (Groq, Cyfuture).
 
-    def __init__(self, settings):
-        super().__init__(settings)
-        self.api_key = settings.get("groq_key", "")
-        self.model = settings.get("groq_model") or self.default_model
-        self.vision_model = settings.get("groq_vision_model") or self.vision_model
+    Subclasses only declare endpoint + models. Two behaviors via flags/hooks:
+      * live_stream=True  -> yield each delta as it arrives (Groq)
+      * live_stream=False -> buffer, then yield _coalesce(buffer) once (Cyfuture)
+    """
+
+    base_url = ""
+    live_stream = True
+    _TIMEOUT = 60
+
+    def _endpoint(self):
+        return f"{self.base_url}/chat/completions"
+
+    def _headers(self):
+        return {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+
+    def _pick_model(self, messages, image_resolver):
+        has_images = any(
+            image_resolver(f) for m in messages for f in m.get("files", [])
+        )
+        return self.vision_model if has_images else self.model
+
+    def _coalesce(self, full_buffer):
+        """Turn a buffered stream into the final answer (Cyfuture override)."""
+        return full_buffer
+
+    @staticmethod
+    def _iter_deltas(resp):
+        """Yield content deltas from an SSE response."""
+        for line in resp.iter_lines():
+            if not line:
+                continue
+            line = line.decode("utf-8")
+            if line.startswith("data: "):
+                data = line[6:]
+            elif line.startswith("data:"):
+                data = line[5:]
+            else:
+                continue
+            if data.strip() == "[DONE]":
+                break
+            try:
+                chunk = json.loads(data)
+                delta = (chunk.get("choices") or [{}])[0].get("delta", {}).get("content")
+                if delta:
+                    yield delta
+            except json.JSONDecodeError:
+                pass
+
+    @staticmethod
+    def _nonstream_content(url, payload, headers):
+        """One-shot non-streaming completion (fallback when SSE is unavailable)."""
+        payload = dict(payload, stream=False)
+        r2 = requests.post(url, json=payload, headers=headers, timeout=60)
+        r2.raise_for_status()
+        data = r2.json()
+        return (data.get("choices") or [{}])[0].get("message", {}).get("content", "")
 
     def stream(self, messages, temperature, max_tokens, image_resolver):
         from . import to_openai_format
 
-        has_images = any(
-            image_resolver(f) for m in messages for f in m.get("files", [])
-        )
-        model = self.vision_model if has_images else self.model
-
+        model = self._pick_model(messages, image_resolver)
         msgs = to_openai_format(messages, image_resolver)
-        url = "https://api.groq.com/openai/v1/chat/completions"
+        url = self._endpoint()
         payload = {
             "model": model,
             "messages": msgs,
@@ -187,55 +233,34 @@ class GroqProvider(BaseProvider):
             "top_p": 1,
             "stream": True,
         }
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
+        headers = self._headers()
 
         def _yield_meta():
             yield {"type": "meta", "provider": self.key, "model": model}
 
         try:
-            with requests.post(url, json=payload, headers=headers, stream=True, timeout=60) as resp:
+            with requests.post(url, json=payload, headers=headers, stream=True, timeout=self._TIMEOUT) as resp:
                 resp.raise_for_status()
-                ctype = resp.headers.get("Content-Type", "")
-                if "text/event-stream" not in ctype:
-                    payload["stream"] = False
-                    r2 = requests.post(url, json=payload, headers=headers, timeout=60)
-                    r2.raise_for_status()
-                    data = r2.json()
-                    content = (data.get("choices") or [{}])[0].get("message", {}).get("content", "")
+                if "text/event-stream" not in resp.headers.get("Content-Type", ""):
+                    content = self._nonstream_content(url, payload, headers)
                     if content:
                         yield content
                     yield from _yield_meta()
                     return
                 got_any = False
-                for line in resp.iter_lines():
-                    if not line:
-                        continue
-                    line = line.decode("utf-8")
-                    if line.startswith("data: "):
-                        data = line[6:]
-                    elif line.startswith("data:"):
-                        data = line[5:]
+                full_buffer = ""
+                for delta in self._iter_deltas(resp):
+                    got_any = True
+                    if self.live_stream:
+                        yield delta
                     else:
-                        continue
-                    if data.strip() == "[DONE]":
-                        break
-                    try:
-                        chunk = json.loads(data)
-                        delta = (chunk.get("choices") or [{}])[0].get("delta", {}).get("content")
-                        if delta:
-                            got_any = True
-                            yield delta
-                    except json.JSONDecodeError:
-                        pass
+                        full_buffer += delta
+                if not self.live_stream and full_buffer:
+                    content = self._coalesce(full_buffer)
+                    if content:
+                        yield content
                 if not got_any:
-                    payload["stream"] = False
-                    r2 = requests.post(url, json=payload, headers=headers, timeout=60)
-                    r2.raise_for_status()
-                    data = r2.json()
-                    content = (data.get("choices") or [{}])[0].get("message", {}).get("content", "")
+                    content = self._nonstream_content(url, payload, headers)
                     if content:
                         yield content
                 yield from _yield_meta()
@@ -249,12 +274,32 @@ class GroqProvider(BaseProvider):
             raise
 
 
-class CyfutureProvider(BaseProvider):
+class GroqProvider(_OpenAICompatibleProvider):
+    key = "groq"
+    label = "Groq"
+    default_model = "openai/gpt-oss-120b"
+    vision_model = "openai/gpt-oss-120b"
+    supports_vision = False
+    base_url = "https://api.groq.com/openai/v1"
+    live_stream = True
+
+    def __init__(self, settings):
+        super().__init__(settings)
+        self.api_key = settings.get("groq_key", "")
+        self.model = settings.get("groq_model") or self.default_model
+        self.vision_model = settings.get("groq_vision_model") or self.vision_model
+
+class CyfutureProvider(_OpenAICompatibleProvider):
     key = "cyfuture"
     label = "Cyfuture"
     default_model = "gpt-4o-mini"
     vision_model = "gpt-4o"
     supports_vision = True
+    live_stream = False
+
+    # Only strip when the model actually emitted a thinking block.
+    # (The old code cut at any blank line and truncated normal answers.)
+    _THINK_END = ("</thinking>", "</think>", "<|im_end|>")
 
     def __init__(self, settings):
         super().__init__(settings)
@@ -266,106 +311,14 @@ class CyfutureProvider(BaseProvider):
     def is_available(self):
         return bool(self.api_key)
 
-    def stream(self, messages, temperature, max_tokens, image_resolver):
-        from . import to_openai_format
-
-        has_images = any(
-            image_resolver(f) for m in messages for f in m.get("files", [])
-        )
-        model = self.vision_model if has_images else self.model
-
-        msgs = to_openai_format(messages, image_resolver)
-        url = f"{self.base_url}/chat/completions"
-        payload = {
-            "model": model,
-            "messages": msgs,
-            "temperature": temperature,
-            "max_tokens": max_tokens,
-            "top_p": 1,
-            "stream": True,
-        }
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
-
-        def _yield_meta():
-            yield {"type": "meta", "provider": self.key, "model": model}
-
-        try:
-            with requests.post(url, json=payload, headers=headers, stream=True, timeout=120) as resp:
-                resp.raise_for_status()
-                ctype = resp.headers.get("Content-Type", "")
-                # Handle both SSE and JSON responses
-                is_sse = "text/event-stream" in ctype
-                if not is_sse and "application/json" not in ctype:
-                    payload["stream"] = False
-                    r2 = requests.post(url, json=payload, headers=headers, timeout=120)
-                    r2.raise_for_status()
-                    data = r2.json()
-                    content = (data.get("choices") or [{}])[0].get("message", {}).get("content", "")
-                    if content:
-                        yield content
-                    yield from _yield_meta()
-                    return
-                got_any = False
-                full_buffer = ""
-                for line in resp.iter_lines():
-                    if not line:
-                        continue
-                    line = line.decode("utf-8")
-                    if line.startswith("data: "):
-                        data = line[6:]
-                    elif line.startswith("data:"):
-                        data = line[5:]
-                    else:
-                        continue
-                    if data.strip() == "[DONE]":
-                        break
-                    try:
-                        chunk = json.loads(data)
-                        delta = (chunk.get("choices") or [{}])[0].get("delta", {}).get("content")
-                        if delta:
-                            full_buffer += delta
-                    except json.JSONDecodeError:
-                        pass
-                # Strip reasoning tokens if present
-                if full_buffer:
-                    # Find last reasoning end marker
-                    end_markers = ["\n\n", "\n```\n\n", "```\n\n", "```\n", "```", "</thinking>"]
-                    last_pos = -1
-                    for marker in end_markers:
-                        pos = full_buffer.rfind(marker)
-                        if pos > last_pos:
-                            last_pos = pos
-                            # Use the actual marker found, not end_markers[0]
-                            found_marker = marker
-                    if last_pos >= 0:
-                        content = full_buffer[last_pos + len(found_marker):]
-                        if content:
-                            got_any = True
-                            yield content
-                    else:
-                        got_any = True
-                        yield full_buffer
-                if not got_any:
-                    payload["stream"] = False
-                    r2 = requests.post(url, json=payload, headers=headers, timeout=120)
-                    r2.raise_for_status()
-                    data = r2.json()
-                    content = (data.get("choices") or [{}])[0].get("message", {}).get("content", "")
-                    if content:
-                        yield content
-                yield from _yield_meta()
-        except requests.exceptions.Timeout:
-            yield {"type": "error", "message": "Request timed out"}
-            yield from _yield_meta()
-            raise
-        except requests.exceptions.RequestException as e:
-            yield {"type": "error", "message": str(e)}
-            yield from _yield_meta()
-            raise
-
+    def _coalesce(self, full_buffer):
+        text = full_buffer
+        for marker in self._THINK_END:
+            idx = text.rfind(marker)
+            if idx >= 0:
+                text = text[idx + len(marker):]
+                break
+        return text.strip() or full_buffer
 
 class GeminiProvider(BaseProvider):
     key = "gemini"

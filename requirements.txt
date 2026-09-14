@@ -4,9 +4,8 @@ requests>=2.31
 python-dotenv>=1.0
 waitress>=3.0
 
-# AI providers (Groq = fast chat, Gemini = fallback + vision, Cyfuture = chat + vision)
-groq>=0.9
-google-generativeai>=0.7
+# AI providers use raw HTTPS via `requests` (no vendor SDKs needed):
+# Groq + Cyfuture = OpenAI-compatible chat API, Gemini = REST generateContent.
 
 # RAG: embeddings (LangChain) + vector DB + text deps
 langchain-core>=0.2.0
@@ -27,3 +26,6 @@ python-docx>=1.1
 Pillow>=10.0
 edge-tts>=7.0
 pytesseract>=0.3.10  # OCR for scanned PDFs (needs Tesseract binary installed)
+
+# Tests (dev only)
+pytest>=7.0

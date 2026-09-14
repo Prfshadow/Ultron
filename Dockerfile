@@ -48,5 +48,6 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:5000/ || exit 1
 
-# Default command
-CMD ["python", "app.py"]
+# Production server (waitress is already in requirements.txt).
+# Honors FLASK_HOST / FLASK_PORT from the environment (see docker-compose.yml).
+CMD waitress-serve --listen=${FLASK_HOST:-0.0.0.0}:${FLASK_PORT:-5000} --threads=4 app:app

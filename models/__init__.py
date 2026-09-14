@@ -1,6 +1,7 @@
 from .providers import (
     BaseProvider,
     GroqProvider,
+    CyfutureProvider,
     GeminiProvider,
     PROVIDERS,
     _PRIORITY,

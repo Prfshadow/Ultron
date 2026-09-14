@@ -19,7 +19,6 @@ log = get_logger("tools.manager")
 from tools.calendar_tool import calendar_answer
 from tools.time_tool import get_time, convert_time, parse_historical_time_query
 from tools.weather import weather_now
-from tools.websearch import format_context, web_search
 from tools.websearch_providers import multi_search, format_search_results
 from tools.calculator import evaluate_expression, detect_calculation
 
