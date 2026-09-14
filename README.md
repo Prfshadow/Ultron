@@ -157,6 +157,22 @@ Add them to a `.env` file (see `.env.example`) — keys cannot be changed from t
 
 ---
 
+## Screenshots
+
+| Home | Chat |
+|------|------|
+| ![Ultron home](docs/screenshots/01-home.png) | ![Ultron chat](docs/screenshots/02-chat.png) |
+
+| Weather tool | Memory |
+|--------------|--------|
+| ![Weather tool](docs/screenshots/03-weather-tool.png) | ![Long-term memory](docs/screenshots/04-memory.png) |
+
+| Voice Mode | Settings |
+|------------|----------|
+| ![Voice Mode](docs/screenshots/05-voice-mode.png) | ![Settings](docs/screenshots/06-settings.png) |
+
+---
+
 ## Security
 
 - Uploads are validated against a whitelist of extensions and a 25 MB size cap.
