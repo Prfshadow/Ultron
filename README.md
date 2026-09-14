@@ -3,7 +3,7 @@
 A lightweight, premium-looking ChatGPT-style AI assistant that runs entirely on **localhost**.
 Built with **Python (Flask)** and **vanilla HTML/CSS/JS** — no Node.js, no React, no heavy frontend framework.
 
-Perfect for demonstrating AI / ML concepts in an internship project: **RAG**, **memory**, **multi-provider fallback**, **vision**, and **document analysis**.
+Perfect for demonstrating AI / ML concepts in an internship project: **RAG**, **memory**, **multi-provider fallback**, **vision**, **speech (TTS/STT/STS)**, and **document analysis**.
 
 ---
 
@@ -14,12 +14,13 @@ Perfect for demonstrating AI / ML concepts in an internship project: **RAG**, **
 - **RAG (Retrieval Augmented Generation)** — upload PDF, DOCX, TXT, Markdown or CSV files; Ultron embeds them locally and answers only from the retrieved context (reduces hallucinations).
 - **Image understanding** — PNG/JPG/JPEG/WEBP. Ultron reads text in images (via vision models + optional OCR), describes images, reads invoices, charts, screenshots and diagrams.
 - **PDF & DOCX understanding** — extract text, tables, headings and answer questions.
+- **Speech (TTS / STT / STS)** — **Text-to-Speech** (Edge Neural TTS, deep male voices, offline, no API key), **Speech-to-Text** (browser Web Speech API + Groq Whisper fallback), **Speech-to-Speech** (full-duplex Voice Mode: tap the orb, speak, get a spoken reply — continuous conversation with VAD + silence detection).
 - **Long-term memory** (SQLite) — save facts ("My name is Rahul") and Ultron remembers them across chats. View / add / edit / delete from the UI, plus an auto-learn mode.
 - **Short-term memory** — conversation history is replayed into each response.
 - **Chat history** — create, rename, delete, search and restore chats, plus export/import as JSON.
 - **Streaming responses** — markdown rendering, syntax-highlighted code, copy / regenerate / stop buttons.
 - **Premium glassmorphism UI** — dark/light themes, glass panels, blur, smooth gradients, responsive down to mobile.
-- **Settings** — API keys, model selection, temperature, max tokens, RAG/memory toggles.
+- **Settings** — API keys, model selection, temperature, max tokens, RAG/memory toggles, Voice selection (TTS), provider priority.
 
 ---
 
@@ -136,6 +137,23 @@ Add them to a `.env` file (see `.env.example`) — keys cannot be changed from t
 
 - Images are attached to the provider call as base64 (vision model on Gemini).
 - Local OCR (`pytesseract`) text is also added to the prompt when available, making invoice/table/code reads accurate.
+
+### 6. Voice — TTS / STT / STS
+
+- **TTS** (Text-to-Speech): Edge Neural TTS (free, offline). Curated deep male voices (Christopher, Guy, Eric, Roger, Steffan, Ryan, Thomas, etc.) with adjustable pitch/rate. Default voice is Ultron-deep. No API key needed.
+- **STT** (Speech-to-Text): Browser Web Speech API (Chrome/Edge/Opera) for real-time transcription. Fallback: **Groq Whisper** (`whisper-large-v3-turbo`) via `/api/voice/transcribe` for browsers without Web Speech API or when network is required. Audio captured as WebM/MP4, auto-converted to 16 kHz WAV, sent to Groq, transcript returned.
+- **STS** (Speech-to-Speech / Voice Mode): Full-screen Voice Mode (ChatGPT-style). Tap the orb → **listening** (VAD + 1.8s silence auto-stop, visual live transcript). Ultron **thinks** → **speaks** (Edge TTS streams MP3, played in-browser). Interrupt anytime by tapping the orb again. Continuous conversation loop with configurable silence thresholds. Works in Chrome/Edge/Firefox.
+
+---
+
+## Quick Start — Voice Mode
+
+1. Start Ultron: `python app.py` (or `docker compose up -d`)
+2. Open `http://localhost:5000` in **Chrome/Edge** (Firefox works but no Web Speech API).
+3. Click the **mic icon** in the bottom bar (Voice Overlay) or the **Voice Mode** button in the sidebar (mic icon with wave).
+4. **Voice Overlay**: Tap the mic, speak, tap again — Ultron replies with TTS.
+5. **Voice Mode** (full-screen): Tap the orb, speak naturally. Ultron listens until you pause (~1.8s), thinks, then speaks. Tap orb again to interrupt.
+6. **Settings** > Features > **Speak voice** to change TTS voice. **Provider fallback** > enable for STT fallback.
 
 ---
 
